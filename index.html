@@ -1,101 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0A0A0A">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="./manifest.json">
-    <title>DOF Tweaker</title>
-    <link rel="stylesheet" href="./style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0A0A0A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>DOF Tweaker</title>
+  <link rel="stylesheet" href="./style.css" />
 </head>
+
 <body data-theme="dark">
-    <!-- Install Prompt UI -->
-    <div id="installContainer">
-        <button id="installPrompt">INSTALL APP</button>
-        <button id="closeInstall">×</button>
+  <!-- Install Prompt UI -->
+  <div id="installContainer">
+    <button id="installPrompt">INSTALL APP</button>
+    <button id="closeInstall">×</button>
+  </div>
+
+  <header>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2" />
+        <circle cx="12" cy="12" r="6" stroke="var(--accent)" stroke-width="2" opacity="0.6" />
+        <circle cx="12" cy="12" r="3" fill="var(--accent)" />
+        <line x1="2" y1="12" x2="22" y2="12" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2 2"
+          opacity="0.4" />
+      </svg>
+      <div class="logo">DoF Tweaker</div>
     </div>
+    <button class="theme-btn" id="themeToggle">DARK MODE</button>
+  </header>
 
-    <header>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="var(--accent)" stroke-width="2"/>
-                <circle cx="12" cy="12" r="6" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
-                <circle cx="12" cy="12" r="3" fill="var(--accent)"/>
-                <line x1="2" y1="12" x2="22" y2="12" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.4"/>
-            </svg>
-            <div class="logo">DoF Tweaker</div>
-        </div>
-        <button class="theme-btn" id="themeToggle">DARK MODE</button>
-    </header>
-
-    <div id="viz">
-        <canvas id="mainCanvas"></canvas>
-        <div class="overlay">
-            <div id="dofZone" class="dof-zone"></div>
-            <div id="focusLine" class="v-line focus-line" data-line="focus">
-                <div class="line-tag focus-tag">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
-                        <path d="M2 6L5 3M2 6L5 9M10 6L7 3M10 6L7 9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    Focus
-                </div>
-            </div>
-            <div id="hyperLine" class="v-line hyper-line" data-line="hyper">
-                <div class="line-tag hyper-tag">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
-                        <path d="M2 6L5 3M2 6L5 9M10 6L7 3M10 6L7 9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    Hyperfocal
-                </div>
-            </div>
-            <div id="focusDistTag" class="boundary-tag">0m</div>
-            <div id="nearTag" class="boundary-tag">0m</div>
-            <div id="farTag" class="boundary-tag">0m</div>
-        </div>
+  <!-- Static CSS Scenery Layer -->
+  <div id="scenery">
+    <div id="sky"></div>
+    <div id="stars-layer"></div>
+    <div id="celestial-container">
+      <div id="sun"></div>
+      <div id="moon"></div>
     </div>
+    <div id="clouds-layer"></div>
+    <div id="birds-layer"></div>
+  </div>
 
-    <div id="controls">
-        <div class="control-grid">
-            <div class="input-group">
-                <div class="label-row"><label>Distance (m)</label></div>
-                <div class="stepper">
-                    <button id="distMinus">−</button>
-                    <input type="number" id="distance" value="5.0" step="0.1" min="0.1">
-                    <button id="distPlus">+</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <div class="label-row"><label>Focal (mm)</label></div>
-                <div class="stepper">
-                    <button id="focalMinus">−</button>
-                    <input type="number" id="focal" value="50" step="1" min="1">
-                    <button id="focalPlus">+</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <div class="label-row"><label>Aperture (f/)</label></div>
-                <div class="stepper">
-                    <button id="apMinus">−</button>
-                    <input type="number" id="aperture" value="2.8" step="0.1" min="0.7">
-                    <button id="apPlus">+</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <div class="label-row"><label>Sensor CoC</label></div>
-                <select id="sensor">
-                    <option value="0.030">Full Frame (0.030)</option>
-                    <option value="0.020">APS-C (0.020)</option>
-                    <option value="0.015">Micro 4/3 (0.015)</option>
-                    <option value="0.010">1" Sensor (0.010)</option>
-                    <option value="0.005">Smartphone (0.005)</option>
-                </select>
-            </div>
+  <div id="viz">
+    <!-- Canvas is now transparent and only handles trees -->
+    <canvas id="mainCanvas"></canvas>
+    <div class="overlay">
+      <div id="dofZone" class="dof-zone"></div>
+      <div id="focusLine" class="v-line focus-line" data-line="focus">
+        <div class="line-tag focus-tag">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 4px;
+              ">
+            <path d="M2 6L5 3M2 6L5 9M10 6L7 3M10 6L7 9" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Focus
         </div>
-        <div id="resGrid"></div>
+      </div>
+      <div id="hyperLine" class="v-line hyper-line" data-line="hyper">
+        <div class="line-tag hyper-tag">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 4px;
+              ">
+            <path d="M2 6L5 3M2 6L5 9M10 6L7 3M10 6L7 9" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Hyperfocal
+        </div>
+      </div>
+      <div id="focusDistTag" class="boundary-tag" style="bottom: 90%">0m</div>
+      <div id="nearTag" class="boundary-tag" style="bottom: 20%">0m</div>
+      <div id="farTag" class="boundary-tag" style="bottom: 5%">0m</div>
+      <!-- Ground wrapper for correct Z-indexing -->
+      <div id="ground-elements">
+        <div id="rocks-layer"></div>
+        <div id="grass-layer"></div>
+      </div>
     </div>
+  </div>
 
-    <script src="./script.js"></script>
+  <div id="controls">
+    <div class="control-grid">
+      <div class="input-group">
+        <div class="label-row"><label>Distance (m)</label></div>
+        <div class="stepper">
+          <button id="distMinus">−</button>
+          <input type="number" id="distance" value="5.0" step="0.1" min="0.1" />
+          <button id="distPlus">+</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="label-row"><label>Focal (mm)</label></div>
+        <div class="stepper">
+          <button id="focalMinus">−</button>
+          <input type="number" id="focal" value="50" step="1" min="1" />
+          <button id="focalPlus">+</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="label-row"><label>Aperture (f/)</label></div>
+        <div class="stepper">
+          <button id="apMinus">−</button>
+          <input type="number" id="aperture" value="2.8" step="0.1" min="0.7" />
+          <button id="apPlus">+</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="label-row"><label>Sensor CoC</label></div>
+        <select id="sensor">
+          <option value="0.030">Full Frame (0.030)</option>
+          <option value="0.020">APS-C (0.020)</option>
+          <option value="0.015">Micro 4/3 (0.015)</option>
+          <option value="0.010">1" Sensor (0.010)</option>
+          <option value="0.005">Smartphone (0.005)</option>
+        </select>
+      </div>
+    </div>
+    <div id="resGrid"></div>
+  </div>
+
+  <script src="./script.js"></script>
 </body>
+
 </html>
